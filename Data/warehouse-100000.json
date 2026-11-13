@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "dataset": "industrial-stock-v1",
+  "counts": {
+    "warehouses": 4,
+    "products": 25000,
+    "stock_balances": 100000
+  },
+  "integrity_check": "ok",
+  "sha256": "5e09fb7aa110431fb2bbef3b8b59c3ae73e0df5eb51c8e6c58fdc09bb8901fc6",
+  "size_bytes": 9056256
+}

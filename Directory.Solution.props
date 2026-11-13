@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- Keep solution and referenced project builds on the same local Design version. -->
+    <PhialeDesignWpfVersion>0.1.0-preview.45</PhialeDesignWpfVersion>
+  </PropertyGroup>
+</Project>

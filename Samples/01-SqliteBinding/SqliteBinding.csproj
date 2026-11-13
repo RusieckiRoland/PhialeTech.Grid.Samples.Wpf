@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>PhialeTech.Grid.Samples.Wpf.SqliteBinding</RootNamespace>
+    <PhialeGridRoot Condition="'$(PhialeGridRoot)' == ''">$(MSBuildThisFileDirectory)../../../PhialeGis.Library</PhialeGridRoot>
+    <PhialeDesignWpfVersion>0.1.0-preview.47</PhialeDesignWpfVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(PhialeGridRoot)/src/PhialeTech/Products/Grid/Contracts/PhialeGrid.Contracts/PhialeGrid.Contracts.csproj" />
+    <ProjectReference Include="$(PhialeGridRoot)/src/PhialeTech/Products/Grid/Core/PhialeGrid.Core/PhialeGrid.Core.csproj" />
+    <ProjectReference Include="$(PhialeGridRoot)/src/PhialeTech/Products/Grid/Platforms/Wpf/PhialeGrid.Wpf/PhialeGrid.Wpf.csproj" AdditionalProperties="PhialeDesignWpfVersion=$(PhialeDesignWpfVersion)" />
+    <ProjectReference Include="$(PhialeGridRoot)/src/PhialeTech/Products/Grid/Platforms/Wpf/PhialeGrid.Styles.Wpf/PhialeGrid.Styles.Wpf.csproj" AdditionalProperties="PhialeDesignWpfVersion=$(PhialeDesignWpfVersion)" />
+    <PackageReference Include="Phiale.Design.Wpf" Version="$(PhialeDesignWpfVersion)" />
+    <PackageReference Include="UniversalInput.Contracts" Version="3.0.0-preview.3" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.15" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
+    <Content Include="../../Data/warehouse-100000.sqlite" Link="Data/warehouse-100000.sqlite" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
