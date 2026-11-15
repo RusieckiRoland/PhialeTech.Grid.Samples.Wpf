@@ -8,7 +8,8 @@ public sealed record StockRow(
     string UnitCode,
     string WarehouseName,
     decimal OnHand,
-    decimal Reserved)
+    decimal Reserved,
+    string Category = "")
 {
     public decimal Available => OnHand - Reserved;
 }

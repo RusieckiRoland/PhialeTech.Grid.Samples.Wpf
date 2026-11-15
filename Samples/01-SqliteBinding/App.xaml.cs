@@ -25,7 +25,7 @@ public partial class App : Application
         base.OnStartup(e);
 
         // Application composition: only this entry point creates the Grid Core.
-        var databasePath = Path.Combine(AppContext.BaseDirectory, "Data", "warehouse-100000.sqlite");
+        var databasePath = Path.Combine(AppContext.BaseDirectory, "Data", "warehouse-1000000.sqlite");
         var repository = new SqliteStockRepository(databasePath);
         var viewModel = new StocksViewModel(repository, _gridData.CreateBinding);
         var gridApi = GridApiFactory.CreateRuntime();

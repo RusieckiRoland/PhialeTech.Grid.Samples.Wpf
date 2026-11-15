@@ -2,5 +2,5 @@ namespace PhialeTech.Grid.Samples.Wpf.SqliteBinding.Models;
 
 public interface IStockRepository
 {
-    Task<IReadOnlyList<StockRow>> ReadAllAsync(CancellationToken cancellationToken);
+    Task<IReadOnlyList<StockRow>> ReadAllAsync(CancellationToken cancellationToken, int limit = 100000);
 }

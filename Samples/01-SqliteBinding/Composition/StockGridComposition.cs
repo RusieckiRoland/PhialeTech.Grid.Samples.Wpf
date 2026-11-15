@@ -14,7 +14,8 @@ public sealed class StockGridComposition : IDisposable
     public GridDataBinding CreateBinding(IReadOnlyList<StockRow> rows,
         IReadOnlyList<IGridColumnDescriptor> columns)
     {
-        if (_session != null) throw new InvalidOperationException("This example loads one snapshot per window.");
+        _session?.Dispose();
+        _session = null;
         var definitions = columns.Select(column => new GridColumnDefinition(
             column.Id, column.Header, column.Width, isEditable: false,
             valueType: column.ValueType)).ToArray();

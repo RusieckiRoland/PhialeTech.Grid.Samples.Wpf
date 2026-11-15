@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
@@ -18,6 +18,6 @@
     <PackageReference Include="UniversalInput.Contracts" Version="3.0.0-preview.3" />
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.15" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
-    <Content Include="../../Data/warehouse-100000.sqlite" Link="Data/warehouse-100000.sqlite" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../../Data/warehouse-1000000.sqlite" Link="Data/warehouse-1000000.sqlite" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

@@ -7,7 +7,7 @@ Małe przykłady użycia Grida, zawsze w MVVM. Każdy projekt pokazuje jedno zag
 Jeden zwykły Window WPF i jeden PhialeGrid. Bez Shella, master–detail, serwera REST, edycji ani dodatkowych paneli aplikacji.
 
 ```text
-Data/warehouse-100000.sqlite
+Data/warehouse-1000000.sqlite
   → SqliteStockRepository: SELECT i mapowanie wyniku
   → StockRow: model jednego stanu towaru w jednym magazynie
   → StocksViewModel.Rows: dane / Columns: kolumny z GridColumnsBuilder
@@ -154,3 +154,34 @@ Korekta mechanizmu Grid (decyzja autora z tej samej rozmowy): przełącznik nie 
 ## Gotowy panel opcji Grida — 2026-11-13
 
 Na polecenie autora krótki przykład podłącza PhialeToolsPanel przez PhialeGrid.SideToolContent w Views/MainWindow.xaml. Jest to gotowa kontrolka biblioteki Grida, nie zawartość implementowana przez aplikację. Menu ☰ → Elements → Grid options jest aktywne i otwiera ustawienia. Brak lokalnego stylowania i dodatkowej logiki w ViewModelu. Sprawdzono rzeczywiste WPF z 100 000 rekordów; 26 kontroli read-only i pagingu nadal zaliczonych. Bez commit/push.
+
+
+## Dataset size comparison
+
+The sample now includes `Data/warehouse-1000000.sqlite`: 250,000 product
+variants across four warehouses, giving 1,000,000 stock balances. The original
+100,000-row database is retained. Category identifies fasteners, packaging,
+workwear and cables; group by Category and then Warehouse to compare workloads.
+Additional variants are synthetic supplier variants, not real commercial stock.
+
+Select 10,000, 100,000 or 1,000,000 and click **Load snapshot**. SQL applies
+LIMIT before materialization. The default remains 100,000. Each load replaces
+the read-only in-memory snapshot; local filtering, sorting and paging then use
+that snapshot. The status displays load duration (database read, model/session
+creation and synchronous binding notification), not a precise render benchmark.
+Keep the same grouping, filter and paging configuration when comparing sizes.
+
+The generator is `Tools/GenerateMillion.py`; it refuses to overwrite an existing
+million-row database. The supplied file exceeds GitHub's ordinary 100 MiB limit;
+use Git LFS or a release asset before publishing it. No publication is performed.
+
+Author request: 2026-11-14, this conversation. Dataset expansion, category and
+size selector implemented by the agent. Validation: `Tests/SqliteBinding.Checks`
+checks all three SQL limits, quantities, categories and snapshot replacement.
+
+## Tryb bez pagingu — 2026-11-15
+MainWindow.xaml włącza EnableDataVirtualization. Po odznaczeniu Paging scrollbar obejmuje cały wynik, a Grid przygotowuje tylko potrzebne okna. Dane SQLite pozostają w pamięci adaptera; nie jest to paging SQL. Kopiowanie/eksport całego przefiltrowanego wyniku pozostają dostępne. Decyzję zatwierdził autor w rozmowie; implementacja i testy: agent.
+
+## Baza danych i Git LFS
+
+Plik `Data/warehouse-1000000.sqlite` jest przechowywany przez Git LFS, ponieważ przekracza limit zwykłego pliku GitHub. Po sklonowaniu repozytorium, z zainstalowanym Git LFS, wykonaj `git lfs pull`, aby pobrać pełną bazę zamiast wskaźnika LFS.

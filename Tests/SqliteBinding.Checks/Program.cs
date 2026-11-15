@@ -13,7 +13,7 @@ static void Check(bool condition, string name)
     Console.WriteLine($"PASS: {name}");
 }
 
-var path = Path.Combine(AppContext.BaseDirectory, "Data", "warehouse-100000.sqlite");
+var path = Path.Combine(AppContext.BaseDirectory, "Data", "warehouse-1000000.sqlite");
 var repository = new CountingRepository(new SqliteStockRepository(path));
 var timer = Stopwatch.StartNew();
 var rows = await repository.ReadAllAsync(CancellationToken.None);
@@ -31,7 +31,7 @@ var changed = new List<string?>();
 model.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
 await model.LoadAsync(CancellationToken.None);
 Check(model.Rows.Count == 100000 && changed.Contains("Rows") && changed.Contains("Status"), "ViewModel publishes loaded data and status");
-Check(model.Columns.Count == 7 && model.Columns.All(column => typeof(StockRow).GetProperty(column.Id) != null), "every builder column maps to an existing model property");
+Check(model.Columns.Count == 8 && model.Columns.All(column => typeof(StockRow).GetProperty(column.Id) != null), "every builder column maps to an existing model property");
 Check(model.Columns.Single(column => column.Id == "OnHand").ValueType == typeof(decimal), "numeric columns retain decimal type");
 using var cancelled = new CancellationTokenSource();
 cancelled.Cancel();
@@ -89,7 +89,7 @@ using (var runtime = global::PhialeGrid.Core.GridApiFactory.CreateRuntime())
         Query = new GridQueryRequest(0, 25, null, new GridFilterGroup(new[] {
             new GridFilterDescriptor("ProductCode", GridFilterOperator.Contains, "KAR-00001")
         }, GridLogicalOperator.And), null, null) }, CancellationToken.None);
-    Check(runtime.Data.Current.TotalCount == 4 && runtime.Data.Current.VisibleRecords.Count == 4,
+    Check(runtime.Data.Current.TotalCount == rows.Count(row => row.ProductCode.Contains("KAR-00001")) && runtime.Data.Current.VisibleRecords.Count == Math.Min(25, rows.Count(row => row.ProductCode.Contains("KAR-00001"))),
         "filter applies to the complete snapshot, not just the current page");
     runtime.Workspace.Execute(new global::PhialeGrid.Contracts.GridWorkspaceRequest(
         global::PhialeGrid.Core.Interaction.GridRegionCommandKind.Close,
@@ -106,14 +106,28 @@ using (var runtime = global::PhialeGrid.Core.GridApiFactory.CreateRuntime())
     Check(repository.ReadCount == readsAfterLoad, "paging and filtering perform no additional SQLite reads");
     Check(runtime.Editing.Current?.CanEdit == false, "paging does not enable editing");
 }
-Console.WriteLine("All 26 checks passed.");
+foreach (var size in new[] { 10000, 100000, 1000000 })
+{
+    var measured = Stopwatch.StartNew();
+    var subset = await repository.ReadAllAsync(CancellationToken.None, size);
+    Check(subset.Count == size, $"SQL limit {size}");
+    Check(subset.Select(row => row.Category).Distinct().Count() == 4, $"all four categories in {size}");
+    Check(subset.Select(row => row.WarehouseName).Distinct().Count() == 4, $"all four warehouses in {size}");
+    foreach (var category in subset.GroupBy(row => row.Category)) Console.WriteLine($"  {category.Key}: {category.Count():N0}");
+    Check(subset.All(row => row.Reserved >= 0 && row.OnHand >= row.Reserved && !string.IsNullOrWhiteSpace(row.Category)), "valid quantities and categories");
+    Console.WriteLine($"Read {size}: {measured.Elapsed.TotalSeconds:F3} s");
+}
+model.SelectedSize = 10000;
+await model.LoadAsync(CancellationToken.None);
+Check(model.Rows.Count == 10000 && model.IsIdle && model.DataSession != null, "snapshot can be replaced");
+Console.WriteLine("All checks passed.");
 
 sealed class CountingRepository(IStockRepository inner) : IStockRepository
 {
     public int ReadCount { get; private set; }
-    public Task<IReadOnlyList<StockRow>> ReadAllAsync(CancellationToken token)
+    public Task<IReadOnlyList<StockRow>> ReadAllAsync(CancellationToken token, int limit = 100000)
     {
         ReadCount++;
-        return inner.ReadAllAsync(token);
+        return inner.ReadAllAsync(token, limit);
     }
 }
