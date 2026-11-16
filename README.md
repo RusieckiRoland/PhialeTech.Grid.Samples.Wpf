@@ -51,7 +51,8 @@ or a REST example. Compare cold and warm runs separately; results depend on hard
 
 ## Packages
 
-- PhialeTech.Grid.Contracts, PhialeTech.Grid.Core, PhialeTech.Grid.Wpf: 2.0.0-preview.7
+- PhialeTech.Grid.Core: 2.0.0-preview.8 (fixes virtual scrolling after cache eviction)
+- PhialeTech.Grid.Contracts, PhialeTech.Grid.Wpf: 2.0.0-preview.7
 - Phiale.Design.Wpf: 0.1.0-preview.48
 - UniversalInput.Contracts: 3.0.0-preview.3
 - Microsoft.Data.Sqlite.Core: 10.0.15
