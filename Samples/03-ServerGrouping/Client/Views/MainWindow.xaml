@@ -1,0 +1,24 @@
+<Window x:Class="PhialeTech.Grid.Samples.Wpf.ServerGrouping.Views.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:grid="clr-namespace:PhialeTech.PhialeGrid.Wpf.Controls;assembly=PhialeTech.Grid.Wpf"
+    xmlns:config="clr-namespace:PhialeTech.Grid.Samples.Wpf.ServerGrouping.Configuration"
+    Title="Phiale.Grid · 03 · Server grouping + MVVM" Width="1000" Height="580" MinWidth="650" MinHeight="360"
+    Background="{DynamicResource Phiale.Design.Brush.Surface.Base.Light}">
+    <DockPanel Margin="{DynamicResource Phiale.Design.Thickness.Form.Padding}">
+        <StackPanel DockPanel.Dock="Top">
+            <TextBlock Text="Server-side grouping · Warehouse → Category" Style="{StaticResource Phiale.Design.Style.Text.Body}" />
+            <TextBlock Text="Group by Warehouse and Category. Expand a group, change page and inspect full-group summaries."
+                TextWrapping="Wrap" Style="{StaticResource Phiale.Design.Style.Text.Body}" />
+            <TextBlock Text="POST http://127.0.0.1:5188/api/stocks/query · SQLite · read-only"
+                TextWrapping="Wrap" Style="{StaticResource Phiale.Design.Style.Text.Body}" />
+            <TextBlock Text="{Binding Grid.CurrentRecordId, StringFormat=Current record: {0}}" Style="{StaticResource Phiale.Design.Style.Text.Body}" />
+            <TextBlock Text="{Binding Grid.SelectedRecordIds.Count, StringFormat=Selected records: {0}}" Style="{StaticResource Phiale.Design.Style.Text.Body}" />
+        </StackPanel>
+        <grid:PhialeGrid x:Name="StocksGrid" Columns="{Binding Columns}" Context="{Binding Grid}"
+            IsGridReadOnly="True" IsPagingEnabled="True" DataPageSize="100" EnableDataVirtualization="True"
+            LanguageCode="en" ShowFilterRow="True" ShowDiagnosticStatus="False">
+            <grid:PhialeGrid.CapabilityPolicy><config:GroupingExamplePolicy /></grid:PhialeGrid.CapabilityPolicy>
+        </grid:PhialeGrid>
+    </DockPanel>
+</Window>

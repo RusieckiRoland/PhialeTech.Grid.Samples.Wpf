@@ -9,9 +9,9 @@
     <PhialeDesignWpfVersion>0.1.0-preview.48</PhialeDesignWpfVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="PhialeTech.Grid.Contracts" Version="2.0.0-preview.7" />
-    <PackageReference Include="PhialeTech.Grid.Core" Version="2.0.0-preview.8" />
-    <PackageReference Include="PhialeTech.Grid.Wpf" Version="2.0.0-preview.7" />
+    <PackageReference Include="PhialeTech.Grid.Contracts" Version="2.0.0-preview.10" />
+    <PackageReference Include="PhialeTech.Grid.Core" Version="2.0.0-preview.10" />
+    <PackageReference Include="PhialeTech.Grid.Wpf" Version="2.0.0-preview.10" />
     <PackageReference Include="Phiale.Design.Wpf" Version="$(PhialeDesignWpfVersion)" />
     <PackageReference Include="UniversalInput.Contracts" Version="3.0.0-preview.3" />
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.15" />

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup><TargetFramework>net8.0</TargetFramework><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="8.0.34" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.15" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
+    <Compile Include="../../01-SqliteBinding/Models/StockRow.cs" Link="Models/StockRow.cs" />
+    <Compile Include="../../02-HttpRest/Server/WarehouseDbContext.cs" Link="ExistingEf/WarehouseDbContext.cs" />
+    <Compile Include="../../02-HttpRest/Server/StockQuery.cs" Link="ExistingEf/StockQuery.cs" />
+    <Compile Include="../../02-HttpRest/Server/StockReadRow.cs" Link="ExistingEf/StockReadRow.cs" />
+    <Compile Include="../../02-HttpRest/Server/StockFilters.cs" Link="ExistingEf/StockFilters.cs" />
+    <Compile Include="../../02-HttpRest/Server/StockSorting.cs" Link="ExistingEf/StockSorting.cs" />
+    <Compile Include="../../02-HttpRest/Server/PredicateComposer.cs" Link="ExistingEf/PredicateComposer.cs" />
+  </ItemGroup>
+</Project>

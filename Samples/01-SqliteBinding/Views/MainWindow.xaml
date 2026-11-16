@@ -42,7 +42,7 @@
             CapabilityPolicy="{Binding Capabilities}"
             Columns="{Binding Columns}"
             DataPageSize="100"
-            DataSession="{Binding DataSession}"
+            DataSession="{Binding DataSession}" Context="{Binding Grid}"
             EnableDataVirtualization="True"
             IsGridReadOnly="True"
             IsPagingEnabled="True"

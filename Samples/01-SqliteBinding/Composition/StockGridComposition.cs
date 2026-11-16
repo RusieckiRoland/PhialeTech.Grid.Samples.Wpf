@@ -16,10 +16,8 @@ public sealed class StockGridComposition : IDisposable
     {
         _session?.Dispose();
         _session = null;
-        var definitions = columns.Select(column => new GridColumnDefinition(
-            column.Id, column.Header, column.Width, isEditable: false,
-            valueType: column.ValueType)).ToArray();
-        var source = new GridDataSource<StockRow>(definitions, row => row.Id, row => row with { });
+        // SQLite was already read by the repository. This session queries the supplied rows in memory.
+        var source = new GridDataSource<StockRow>(columns, row => row.Id, row => row with { });
         _session = source.CreateLocalSession(rows, readOnly: true);
         return GridApiFactory.CreateDataBinding(_session);
     }

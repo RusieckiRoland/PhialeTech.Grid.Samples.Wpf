@@ -29,6 +29,7 @@ public partial class MainWindow : Window
     private void ReleaseResources(object? sender, EventArgs e)
     {
         _lifetime.Cancel();
+        _viewModel.Dispose();
         StockGrid.CloseRuntime();
         _lifetime.Dispose();
     }

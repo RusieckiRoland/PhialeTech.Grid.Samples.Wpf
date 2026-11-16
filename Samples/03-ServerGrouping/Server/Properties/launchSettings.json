@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "EF server grouping": {
+      "commandName": "Project",
+      "launchBrowser": false
+    }
+  }
+}

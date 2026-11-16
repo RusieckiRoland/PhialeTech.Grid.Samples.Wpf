@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using PhialeGrid.Contracts;
+using PhialeGrid.Core;
 using PhialeGrid.Core.Capabilities;
 using PhialeTech.Grid.Samples.Wpf.SqliteBinding.Configuration;
 using PhialeTech.Grid.Samples.Wpf.SqliteBinding.Models;
@@ -9,11 +10,13 @@ namespace PhialeTech.Grid.Samples.Wpf.SqliteBinding.ViewModels;
 
 /// <summary>Describes columns, loads model rows and publishes properties for XAML binding.</summary>
 public sealed class StocksViewModel(IStockRepository repository,
-    Func<IReadOnlyList<StockRow>, IReadOnlyList<IGridColumnDescriptor>, GridDataBinding> createBinding) : INotifyPropertyChanged
+    Func<IReadOnlyList<StockRow>, IReadOnlyList<IGridColumnDescriptor>, GridDataBinding> createBinding, IGridApi? runtime = null) : INotifyPropertyChanged, IDisposable
 {
     private readonly IStockRepository _repository = repository;
     private IReadOnlyList<StockRow> _rows = Array.Empty<StockRow>();
     private GridDataBinding? _dataSession;
+    public GridContext<StockRow>? Grid { get; private set; }
+    public void Dispose() { Grid?.Dispose(); Grid = null; }
     private string _status = "Loading stock balances from SQLite…";
 
     public IReadOnlyList<int> DatasetSizes { get; } = new[] { 10000, 100000, 1000000 };
@@ -74,9 +77,11 @@ public sealed class StocksViewModel(IStockRepository repository,
         {
             var rows = await _repository.ReadAllAsync(cancellationToken, count);
             cancellationToken.ThrowIfCancellationRequested();
+            Grid?.Dispose(); Grid = null; OnPropertyChanged(nameof(Grid));
             DataSession = null;
             Rows = rows;
             DataSession = createBinding(rows, Columns);
+            if (runtime != null) { Grid = GridApiFactory.CreateContext<StockRow>(runtime, DataSession); OnPropertyChanged(nameof(Grid)); }
             Status = $"SQLite · {Rows.Count:N0} rows loaded in memory · read-only snapshot · local paging · load {timer.Elapsed.TotalSeconds:F2} s";
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }

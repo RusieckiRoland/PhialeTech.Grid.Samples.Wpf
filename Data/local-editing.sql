@@ -1,0 +1,27 @@
+-- Synthetic sample created for demo 04. Never touches the warehouse database.
+CREATE TABLE assets (id TEXT PRIMARY KEY,name TEXT NOT NULL,category TEXT NOT NULL,quantity INTEGER NOT NULL CHECK(quantity BETWEEN 0 AND 500),price_cents INTEGER NOT NULL CHECK(price_cents BETWEEN 0 AND 10000000),in_service INTEGER NOT NULL CHECK(in_service IN(0,1)),next_inspection TEXT NULL,location TEXT NOT NULL,notes TEXT NOT NULL,version INTEGER NOT NULL CHECK(version>0));
+INSERT INTO assets VALUES
+('EQ-001','Laptop serwisowy','Elektronika',1,549999,0,NULL,'Gdańsk','',1),
+('EQ-002','Monitor 27 cali','Elektronika',8,129950,1,'2027-02-02','Łódź','Do kontroli przed wydaniem',1),
+('EQ-003','Czytnik kodów','Elektronika',0,34010,1,'2026-03-03','Poznań','Współdzielone wyposażenie',1),
+('EQ-004','Drukarka etykiet','Elektronika',25,175000,1,NULL,'Wrocław','Rezerwa — nie usuwać',1),
+('EQ-005','Tablet terenowy','Elektronika',3,0,1,'2026-05-05','Serwis zewnętrzny','',1),
+('EQ-006','Router zapasowy','Elektronika',120,48000,0,'2027-06-06','Sala szkoleniowa','Do kontroli przed wydaniem',1),
+('EQ-007','Wiertarka akumulatorowa','Narzędzia',1,69990,1,NULL,'Gdańsk','Współdzielone wyposażenie',1),
+('EQ-008','Miernik napięcia','Narzędzia',8,13545,1,'2027-08-08','Łódź','Rezerwa — nie usuwać',1),
+('EQ-009','Zestaw kluczy','Narzędzia',0,24900,1,'2026-09-09','Poznań','',1),
+('EQ-010','Wkrętak izolowany','Narzędzia',25,3500,1,NULL,'Wrocław','Do kontroli przed wydaniem',1),
+('EQ-011','Lampa warsztatowa','Narzędzia',3,12099,0,'2026-11-11','Serwis zewnętrzny','Współdzielone wyposażenie',1),
+('EQ-012','Wózek narzędziowy','Narzędzia',120,189000,1,'2027-12-12','Sala szkoleniowa','Rezerwa — nie usuwać',1),
+('EQ-013','Kask ochronny','BHP',1,7950,1,NULL,'Gdańsk','',1),
+('EQ-014','Okulary ochronne','BHP',8,1890,1,'2027-02-14','Łódź','Do kontroli przed wydaniem',1),
+('EQ-015','Apteczka','BHP',0,14500,1,'2026-03-15','Poznań','Współdzielone wyposażenie',1),
+('EQ-016','Gaśnica proszkowa','BHP',25,9900,0,NULL,'Wrocław','Rezerwa — nie usuwać',1),
+('EQ-017','Rękawice robocze','BHP',3,875,1,'2026-05-17','Serwis zewnętrzny','',1),
+('EQ-018','Kamizelka odblaskowa','BHP',120,2400,1,'2027-06-18','Sala szkoleniowa','Do kontroli przed wydaniem',1),
+('EQ-019','Krzesło ergonomiczne','Biuro',1,139900,1,NULL,'Gdańsk','Współdzielone wyposażenie',1),
+('EQ-020','Biurko regulowane','Biuro',8,249000,1,'2027-08-20','Łódź','Rezerwa — nie usuwać',1),
+('EQ-021','Niszczarka dokumentów','Biuro',0,68050,0,'2026-09-21','Poznań','',1),
+('EQ-022','Tablica suchościeralna','Biuro',25,0,1,NULL,'Wrocław','Do kontroli przed wydaniem',1),
+('EQ-023','Szafa aktowa','Biuro',3,84570,1,'2026-11-23','Serwis zewnętrzny','Współdzielone wyposażenie',1),
+('EQ-024','Projektor mobilny','Biuro',120,319995,1,'2027-12-24','Sala szkoleniowa','Rezerwa — nie usuwać',1);

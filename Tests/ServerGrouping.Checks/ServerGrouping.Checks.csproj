@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Samples/03-ServerGrouping/Server/ServerGrouping.Server.csproj" />
+    <PackageReference Include="PhialeTech.Grid.Core" Version="2.0.0-preview.10" />
+    <PackageReference Include="PhialeTech.Grid.Data.Http" Version="2.0.0-preview.10" />
+    <Compile Include="../../Samples/03-ServerGrouping/Client/Infrastructure/GroupedStockProvider.cs" Link="GroupedStockProvider.cs" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <Compile Include="../../Samples/03-ServerGrouping/Client/Infrastructure/GroupedStocksEndpoint.cs" Link="GroupedStocksEndpoint.cs" />
+  </ItemGroup>
+</Project>
