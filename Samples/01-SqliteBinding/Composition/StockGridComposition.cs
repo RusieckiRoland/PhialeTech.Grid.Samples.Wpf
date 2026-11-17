@@ -1,4 +1,4 @@
-using PhialeGrid.Contracts;
+﻿using PhialeGrid.Contracts;
 using PhialeGrid.Core;
 using PhialeGrid.Core.Columns;
 using PhialeGrid.Core.Data;
@@ -17,8 +17,12 @@ public sealed class StockGridComposition : IDisposable
         _session?.Dispose();
         _session = null;
         // SQLite was already read by the repository. This session queries the supplied rows in memory.
-        var source = new GridDataSource<StockRow>(columns, row => row.Id, row => row with { });
-        _session = source.CreateLocalSession(rows, readOnly: true);
+        _session = GridDataBuilder.For<StockRow>()
+            .Columns(columns) // Fields and presentation metadata.
+            .Key(row => row.Id) // Stable unique identity.
+            .Clone(row => row with { }) // StockRow is a record; copy before editing.
+            .Records(rows) // The repository already loaded the complete selected set.
+            .Build(); // No CommitUsing: this example is read-only.
         return GridApiFactory.CreateDataBinding(_session);
     }
 

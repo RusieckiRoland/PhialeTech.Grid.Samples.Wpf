@@ -1,16 +1,12 @@
-# PhialeTech.Grid.Samples.Wpf
+﻿# PhialeTech.Grid.Samples.Wpf
 
-Small, focused WPF examples using MVVM and Phiale.Grid NuGet packages.
+Eight focused WPF examples using Phiale.Grid NuGet packages and MVVM.
+The tutorial sequence separates full in-memory work from real on-demand reads.
 
-## Requirements
+## Requirements and first run
 
-Windows 10/11, Git with Git LFS, and .NET 8 SDK (includes Windows Desktop Runtime 8).
-A newer SDK can build this net8.0 project, but running it still requires Windows Desktop Runtime 8.
-No other Phiale source repositories are needed. Grid preview.10 dependencies are published on nuget.org.
-
-## Run
-
-Execute these commands inside the cloned repository:
+Windows 10/11, Git with Git LFS, .NET 8 SDK (or newer), and Windows Desktop Runtime 8.
+A newer SDK can build these net8.0 applications; the .NET 8 desktop runtime is still required to run them.
 
 ```powershell
 git lfs install
@@ -18,131 +14,77 @@ git lfs pull
 dotnet run --project Samples/01-SqliteBinding/SqliteBinding.csproj -c Release
 ```
 
-In Visual Studio, open `PhialeTech.Grid.Samples.Wpf.sln` and run `SqliteBinding`.
-No command-line arguments are required. If upgrading an older checkout, run `git pull --ff-only` first.
+Open PhialeTech.Grid.Samples.Wpf.sln in Visual Studio. Each numbered example is a
+separate application. No other Phiale source repository or private package feed
+is required. NuGet.Config contains only nuget.org. Grid packages are pinned to
+2.0.0-preview.11; Phiale.Design.Wpf is 0.1.0-preview.48 and UniversalInput.Contracts
+is 3.0.0-preview.3. Individual projects declare the additional SQLite/EF dependencies.
 
-## 01: SQLite binding
+## Choose an example
 
-The example loads a read-only snapshot from `Data/warehouse-1000000.sqlite`.
-Choose 10,000, 100,000 or 1,000,000 stock balances to compare behavior.
-The database is stored in Git LFS; downloading only its pointer is insufficient.
-Data is synthetic and represents products, categories, warehouses and quantities.
+| Example | What it demonstrates | Data strategy |
+| --- | --- | --- |
+| [01 — SQLite](Samples/01-SqliteBinding/README.md) | Load a selected 10k/100k/1m set; columns, filtering, sorting, grouping and local pages. | Entire selected set in memory, read-only. |
+| [02 — Data virtualization](Samples/02-DataVirtualization/README.md) | Same warehouse data; QueryAsync receives Offset/Size and reads actual local windows. | Local source on demand; scrolling or paging through the same source. |
+| [03 — HTTP REST](Samples/03-HttpRest/README.md) | Request/response mapping, EF/SQLite reads, server filters/sorts/pages. | REST on demand, read-only. |
+| [04 — Server grouping](Samples/04-ServerGrouping/README.md) | Warehouse/category groups, full-group totals and navigation to group end. | REST grouped windows, read-only. |
+| [05 — Local editing](Samples/05-LocalEditing/README.md) | 24 varied assets, seven editors, pending changes, discard and atomic file save. | Complete local set, buffered edits, explicit save. |
+| [06 — REST snapshot](Samples/06-RestSnapshot/README.md) | Select supplier price batch, edit locally, save through REST with version conflicts and server validation. | Complete selected REST snapshot, local work, remote commit. |
+| [07 — Row details](Samples/07-RowDetails/README.md) | Application-owned UserControl inside an expanded row. | Read-only detail presentation. |
+| [08 — Nested Grid](Samples/08-NestedGrid/README.md) | Full child Grid with independent filtering and selection. | Read-only parent/child presentation. |
 
-| Location under Samples/01-SqliteBinding | Responsibility |
-| --- | --- |
-| Models/StockRow.cs | One product balance in a warehouse; Available = OnHand - Reserved |
-| Models/IStockRepository.cs | Data access contract |
-| Infrastructure/SqliteStockRepository.cs | Read-only SQLite query and explicit mapping to StockRow |
-| ViewModels/StocksViewModel.cs | Column builder, loaded rows, commands and loading status |
-| Composition/StockGridComposition.cs | Creates and owns the Grid local data session |
-| Configuration/ReadOnlySnapshotPolicy.cs | Available Grid elements for this example |
-| Views/MainWindow.xaml | Binds Columns and Context to PhialeGrid |
-| App.xaml | Imports Phiale.Design and Grid resources |
-| App.xaml.cs | Application composition and resource lifetime |
+UI virtualization prepares only the needed presentation area in every example.
+Data virtualization is separate: example 02 reads needed windows instead of first
+loading all records. In example 01, page buttons divide a collection already in memory.
+In example 02, page buttons and scrolling both ask the same query source for windows.
 
-`GridColumnsBuilder<StockRow>` connects columns to model properties, for example
-`.Add(row => row.ProductCode, "Symbol", 130)`. The repository explicitly assigns SQL
-fields to those properties. The ViewModel supplies the collection through a local
-Grid data session. Sorting, filtering, grouping and paging use the loaded snapshot;
-they do not send further SQL queries. Editing is disabled.
+## Read the composition
 
-This example deliberately reads the chosen dataset into memory. It is not SQL paging
-or a REST example. Compare cold and warm runs separately; results depend on hardware.
+Records(rows) supplies a complete loaded collection. Query(provider) connects a
+reader whose QueryAsync is called on demand. Snapshot(provider, maxRecords)
+downloads a complete selected set before local work. Columns, Key and Clone describe
+metadata, identity and working copies. Build creates Records/Query sessions;
+BuildAsync downloads a Snapshot. CommitUsing explicitly connects persistence.
 
-## Packages
+The composition owns and disposes the session. CreateDataBinding exposes that same
+session to the control; it does not create a second session or load records.
+ViewModels expose the binding and, where required, GridContext<T> for observable
+selection, pending changes, validation and commands. Dispose the context before
+closing its session/runtime. SelectedRecordIds and CheckedRecordIds are distinct;
+SelectedItems contains only available loaded records and never fetches missing pages.
 
-- PhialeTech.Grid.Core: 2.0.0-preview.10 (published MVVM preview)
-- PhialeTech.Grid.Contracts: 2.0.0-preview.10 (published preview); PhialeTech.Grid.Wpf: 2.0.0-preview.10
-- Phiale.Design.Wpf: 0.1.0-preview.48
-- UniversalInput.Contracts: 3.0.0-preview.3
-- Microsoft.Data.Sqlite.Core: 10.0.15
-- SQLitePCLRaw.bundle_e_sqlite3: 3.0.5
-
-NuGet.Config uses only nuget.org. No credentials for private Phiale sources are required.
-
-## Checks
+## Verify
 
 ```powershell
+dotnet build PhialeTech.Grid.Samples.Wpf.sln -c Release
 dotnet run --project Tests/SqliteBinding.Checks -c Release
+dotnet run --project Tests/DataVirtualization.Checks -c Release
+dotnet run --project Tests/DataVirtualization.WpfChecks -c Release
+dotnet run --project Tests/HttpRest.Checks -c Release
+dotnet run --project Tests/ServerGrouping.Checks -c Release
+dotnet run --project Tests/ServerGrouping.WpfChecks -c Release
+dotnet run --project Tests/LocalEditing.Checks -c Release
+dotnet run --project Tests/LocalEditing.WpfChecks -c Release
+dotnet run --project Tests/MoreDemos.WpfChecks -c Release
 ```
 
-Checks cover SQLite mapping, model identities, column definitions, ViewModel
-notifications, cancellation and local Grid session behavior.
+HTTP integration checks start and stop their own servers. Native checks create
+non-activating test windows and close them. Edit checks use temporary database copies.
+Data/warehouse-1000000.sqlite is synthetic, read-only source data stored in Git LFS;
+download its full contents, not just the pointer. Source-dependent query operations
+and limits are explained in each example; they are not universally supplied by Grid.
+
+Tutorials: https://phialetech.com/en/tutorials/ (PL/EN/DE/FR).
 
 ## Licensing
 
-The example source and generated demo data use MIT; see LICENSE.md.
-Dependencies retain their own licenses. MIT for this example does not grant a
-commercial license to Phiale components; see https://phialetech.com/en/licensing/.
+Example source and synthetic data are MIT: see LICENSE.md. Phiale packages keep
+their own licenses. MIT for these examples does not grant a commercial Phiale
+license. Evaluation terms and the free individual commercial-license application:
+https://phialetech.com/en/licensing/.
 
-## Update: 2026-11-15
+## Previous numbering
 
-The author requested a standalone clean-Windows test using published NuGet dependencies.
-The agent replaced source project references and the local Design feed with package
-references, retained MIT for the sample and updated these instructions.
-
-## 02: HTTP REST binding
-
-A small independent WPF MVVM client and a local REST server reading the same Data/warehouse-1000000.sqlite as example 01.
-The ASP.NET Core server queries the existing SQLite database using EF Core by default, with a direct SQL comparison profile. It has no Phiale dependencies.
-The WPF client uses PhialeTech.Grid.Data.Http and maps Grid requests to the independent API. See [the step-by-step guide](Samples/02-HttpRest/README.md).
-
-```powershell
-# Terminal 1
-dotnet run --project Samples/02-HttpRest/Server/HttpRest.Server.csproj -c Release
-# Terminal 2
-dotnet run --project Samples/02-HttpRest/Client/HttpRest.csproj -c Release
-# Integration checks start their own server
-dotnet run --project Tests/HttpRest.Checks -c Release
-```
-
-## 03: Server-side grouping
-
-A separate WPF client and EF Core REST server use the same SQLite database.
-Warehouse/Category groups, server paging and full-group summaries are explained in
-[lesson 03](Samples/03-ServerGrouping/README.md). Demo 02 remains the introductory REST example.
-
-## 04: Local editing and saving
-
-A new 24-row SQLite dataset demonstrates seven editor kinds, working copies,
-change review, restoring a record, discarding pending edits and explicit atomic Save.
-See [lesson 04](Samples/04-LocalEditing/README.md). Saved data stays in a persistent
-local working copy; the seed and earlier warehouse database remain unchanged.
-
-Column builder and MVVM: the examples use published Grid 2.0.0-preview.10 packages from nuget.org. No local package feed or other Phiale source repository is required. The repository NuGet.Config
-remains nuget.org-only. GridColumnsBuilder derives ids/types from property expressions;
-GridDataSource now accepts those descriptors directly, including editor metadata.
-
-## Learning paths
-
-Each lesson starts with its goal, run commands and a concrete data path, then ends
-with a small modification or explanation task. See the guides:
-[01 SQLite](Samples/01-SqliteBinding/README.md),
-[02 HTTP REST](Samples/02-HttpRest/README.md),
-[03 server grouping](Samples/03-ServerGrouping/README.md),
-[04 local editing](Samples/04-LocalEditing/README.md).
-In lesson 02, CreateServerRequest and ReadServerResponse expose the two translation
-directions. StockSearchRequest describes this server's JSON; it is sample application
-code, not a new Grid API. Existing package versions and server routes are unchanged.
-
-## Observable MVVM context — preview.10
-
-The application composition creates GridContext<T> over the existing runtime and
-data session. Each ViewModel exposes Grid; XAML binds Context. CurrentRecordId,
-SelectedRecordIds and CheckedRecordIds have separate meanings. SelectedItems only
-contains loaded, available objects; it never fetches hidden server pages.
-
-The local-editing sample exposes SaveCommand and DiscardCommand outside the Grid,
-observes pending edits directly, and supplies record and asynchronous batch rules.
-SQLite repeats business checks inside the transaction. Dispose the context before
-closing the view; composition still owns the data session.
-
-All Grid preview.10 packages are published on nuget.org. The repository NuGet.Config uses only nuget.org. Restore and build were verified with a fresh package cache after publication.
-
-2026-11-16: the author requested a convenient MVVM contract; the agent implemented
-the approved plan in the component, migrated examples 01–04 and tested protected
-NuGet consumers. No commit, push or publication was performed.
-
-2026-11-17: the author approved publishing preview.10 with the performance gate open. NuGet.org accepted all seven Grid packages; public availability and package-only restore were verified. No source commit, push or website deployment is implied.
-
-2026-11-17: the author requested committing and pushing all current demo updates so the public repository matches the deployed documentation. The agent prepared the commit using the author’s configured Git identity. Examples 01–04 use published preview.10 packages; the source remains MIT.
+The new local-virtualization example occupies 02. The former 02–07 are now 03–08;
+project names, namespaces and server ports remain stable. Earlier working README
+notes are preserved in docs/History and do not describe the current dependency set.

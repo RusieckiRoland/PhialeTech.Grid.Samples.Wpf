@@ -1,0 +1,13 @@
+﻿{
+  "profiles": {
+    "EF Core": {
+      "commandName": "Project",
+      "launchBrowser": false
+    },
+    "SQL comparison": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "commandLineArgs": "--sql"
+    }
+  }
+}

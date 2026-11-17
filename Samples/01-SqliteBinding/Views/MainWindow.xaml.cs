@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using PhialeGrid.Contracts;
 using PhialeTech.Grid.Samples.Wpf.SqliteBinding.ViewModels;
 

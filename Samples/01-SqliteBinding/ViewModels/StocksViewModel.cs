@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using PhialeGrid.Contracts;
 using PhialeGrid.Core;

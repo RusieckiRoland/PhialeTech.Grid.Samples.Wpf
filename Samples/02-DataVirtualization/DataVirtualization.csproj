@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>PhialeTech.Grid.Samples.Wpf.DataVirtualization</RootNamespace>
+    <PhialeDesignWpfVersion>0.1.0-preview.48</PhialeDesignWpfVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="PhialeTech.Grid.Contracts" Version="2.0.0-preview.11" />
+    <PackageReference Include="PhialeTech.Grid.Core" Version="2.0.0-preview.11" />
+    <PackageReference Include="PhialeTech.Grid.Wpf" Version="2.0.0-preview.11" />
+    <PackageReference Include="Phiale.Design.Wpf" Version="$(PhialeDesignWpfVersion)" />
+    <PackageReference Include="UniversalInput.Contracts" Version="3.0.0-preview.3" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.15" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
+    <Content Include="../../Data/warehouse-1000000.sqlite" Link="Data/warehouse-1000000.sqlite" CopyToOutputDirectory="PreserveNewest" />
+
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="8.0.34" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
+    <Compile Include="../01-SqliteBinding/Models/StockRow.cs" Link="Models/StockRow.cs" />
+    <Compile Include="../03-HttpRest/Server/WarehouseDbContext.cs" Link="Infrastructure/Queries/WarehouseDbContext.cs" />
+    <Compile Include="../03-HttpRest/Server/StockQuery.cs" Link="Infrastructure/Queries/StockQuery.cs" />
+    <Compile Include="../03-HttpRest/Server/StockReadRow.cs" Link="Infrastructure/Queries/StockReadRow.cs" />
+    <Compile Include="../03-HttpRest/Server/StockFilters.cs" Link="Infrastructure/Queries/StockFilters.cs" />
+    <Compile Include="../03-HttpRest/Server/StockSorting.cs" Link="Infrastructure/Queries/StockSorting.cs" />
+    <Compile Include="../03-HttpRest/Server/PredicateComposer.cs" Link="Infrastructure/Queries/PredicateComposer.cs" />
+    <Compile Include="../03-HttpRest/Server/EfStockRepository.cs" Link="Infrastructure/Queries/EfStockRepository.cs" />
+    <Compile Include="../04-ServerGrouping/Server/GroupedStockRepository.cs" Link="Infrastructure/Groups/GroupedStockRepository.cs" />
+    <Compile Include="../04-ServerGrouping/Server/GroupCatalog.cs" Link="Infrastructure/Groups/GroupCatalog.cs" />
+    <Compile Include="../04-ServerGrouping/Server/GroupLayout.cs" Link="Infrastructure/Groups/GroupLayout.cs" />
+    <Compile Include="../04-ServerGrouping/Server/GroupContract.cs" Link="Infrastructure/Groups/GroupContract.cs" />
+  <Compile Include="../03-HttpRest/Server/StockPage.cs" Link="Infrastructure/Queries/StockPage.cs" /></ItemGroup>
+</Project>

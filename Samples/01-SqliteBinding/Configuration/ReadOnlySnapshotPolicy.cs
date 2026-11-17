@@ -1,4 +1,4 @@
-using PhialeGrid.Core.Capabilities;
+﻿using PhialeGrid.Core.Capabilities;
 using PhialeGrid.Core.Regions;
 
 namespace PhialeTech.Grid.Samples.Wpf.SqliteBinding.Configuration;

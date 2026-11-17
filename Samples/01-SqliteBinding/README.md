@@ -1,4 +1,4 @@
-# 01 — SQLite binding
+﻿# 01 — SQLite binding
 
 ## Goal and quick start
 

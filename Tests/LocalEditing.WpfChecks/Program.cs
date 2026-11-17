@@ -43,6 +43,8 @@ internal static class Program
             var grid = (PhialeTech.PhialeGrid.Wpf.Controls.PhialeGrid)window.FindName("AssetsGrid");
 
             Check(api.Editing.Records.Count == 24 && api.Workspace.IsRegionOpenAndActive(GridRegionKind.ChangePanelRegion), "actual WPF loads 24 assets and opens Changes panel");
+            Check(!grid.IsPagingEnabled && !api.Projection.IsPagingEnabled, "local example has no paging");
+            Check(api.Data.Current.VisibleRecords.Count == 24, "all 24 loaded records are available together");
             foreach (var (field, type) in new[] { ("Name", typeof(TextBox)), ("Category", typeof(ComboBox)),
                 ("Quantity", typeof(TextBox)), ("UnitPrice", typeof(TextBox)), ("InService", typeof(CheckBox)),
                 ("NextInspection", typeof(DatePicker)), ("Location", typeof(ComboBox)) }) {

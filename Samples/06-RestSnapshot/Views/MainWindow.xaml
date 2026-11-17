@@ -1,0 +1,68 @@
+﻿<Window x:Class="PhialeTech.Grid.Samples.Wpf.RestSnapshot.Views.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:config="clr-namespace:PhialeTech.Grid.Samples.Wpf.RestSnapshot.Configuration"
+ xmlns:grid="clr-namespace:PhialeTech.PhialeGrid.Wpf.Controls;assembly=PhialeTech.Grid.Wpf"
+ Title="Phiale.Grid · 06 · Weryfikacja cennika dostawcy" Width="1320" Height="820" MinWidth="900" MinHeight="600"
+ Background="{DynamicResource Phiale.Design.Brush.Surface.Base.Light}">
+ <Window.Resources>
+  <Style TargetType="Button" BasedOn="{StaticResource Phiale.Design.Style.Button.Secondary}"/>
+  <Style TargetType="ComboBox" BasedOn="{StaticResource Phiale.Design.Style.ComboBox}"/>
+  <Style TargetType="TextBox" BasedOn="{StaticResource Phiale.Design.Style.TextBox}"/>
+  <Style TargetType="TextBlock" BasedOn="{StaticResource Phiale.Design.Style.Text.Body}"/>
+ </Window.Resources>
+ <Grid Margin="20">
+  <StackPanel Width="640" VerticalAlignment="Center" IsEnabled="{Binding IsIdle}">
+   <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding Grid}" Value="{x:Null}"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></StackPanel.Style>
+   <TextBlock Text="05 · Weryfikacja cennika dostawcy" FontSize="24" FontWeight="SemiBold"/>
+   <TextBlock Text="1. Wybierz zakres → 2. Przejrzyj i edytuj lokalnie → 3. Zapisz przez REST" TextWrapping="Wrap" Margin="0,10,0,20"/>
+   <TextBlock Text="Dostawca (po 10 000 pozycji)"/>
+   <ComboBox ItemsSource="{Binding Suppliers}" SelectedItem="{Binding Supplier}" Margin="0,4,0,12"/>
+   <TextBlock Text="Kategoria (puste pole = wszystkie)"/>
+   <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding Category}" Margin="0,4,0,12"/>
+   <TextBlock Text="Data importu od / do"/>
+   <StackPanel Orientation="Horizontal" Margin="0,4,0,12">
+    <DatePicker SelectedDate="{Binding ImportedFrom}" Width="220"/><DatePicker SelectedDate="{Binding ImportedTo}" Width="220" Margin="12,0,0,0"/>
+   </StackPanel>
+   <TextBlock Text="Adres serwera demo"/><TextBox Text="{Binding Address,UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,12"/>
+   <Button Content="Pobierz do weryfikacji" Command="{Binding DownloadCommand}" HorizontalAlignment="Left"/>
+   <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Margin="0,16,0,0"/>
+   <TextBlock Text="Uruchom osobny projekt PriceReview.Server. Serwer czyta katalog z demo 01, a cenniki zapisuje we własnym SQLite w LocalAppData." TextWrapping="Wrap" Margin="0,12,0,0"/>
+  </StackPanel>
+  <DockPanel>
+   <DockPanel.Style><Style TargetType="DockPanel"><Setter Property="Visibility" Value="Visible"/><Style.Triggers><DataTrigger Binding="{Binding Grid}" Value="{x:Null}"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></DockPanel.Style>
+   <StackPanel DockPanel.Dock="Top">
+    <TextBlock Text="05 · Cennik: snapshot i lokalna weryfikacja" FontSize="20" FontWeight="SemiBold"/>
+    <TextBlock Text="{Binding Supplier, StringFormat=Dostawca: {0}}"/>
+    <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Margin="0,6,0,8"/>
+    <WrapPanel>
+     <Button Content="Zapisz zmiany przez REST" Command="{Binding SaveCommand}" Margin="0,0,8,8"/>
+     <Button Content="Zatwierdź zaznaczone" Command="{Binding ApproveCommand}" Margin="0,0,8,8"/>
+     <Button Content="Odrzuć bufor" Command="{Binding Grid.DiscardCommand}" Margin="0,0,8,8"/>
+     <Button Content="Pobierz aktualne dane" Command="{Binding ReloadCommand}" Margin="0,0,8,8"/>
+     <Button Content="Drugi operator" Click="SecondOperator" Margin="0,0,8,8"/>
+     <TextBlock Text="{Binding RequestCount, StringFormat=HTTP: {0}}" Margin="0,8,12,0"/>
+     <TextBlock Text="{Binding Grid.PendingRecordCount, StringFormat=W buforze: {0}}" Margin="0,8,0,0"/>
+    </WrapPanel>
+    <Expander Header="Próby: konflikt i dodatkowa walidacja serwera" Margin="0,0,0,8">
+     <StackPanel>
+      <TextBlock Text="Konflikt: pobierz dane w obu oknach. Zmień tę samą pozycję i zapisz w drugim. Zapis w pierwszym zostanie odrzucony; lokalne zmiany pozostaną." TextWrapping="Wrap"/>
+      <TextBlock Text="Walidacja: zaznacz pozycję i zatwierdź ją lokalnie. Zmień politykę na 35% i zapisz — serwer odrzuci cenę z marżą ok. 25%. Popraw cenę albo przywróć politykę 15%." TextWrapping="Wrap"/>
+      <WrapPanel Margin="0,6,0,0">
+       <Button Content="Serwer: marża 35%" Click="StrictPolicy" Margin="0,0,8,0"/><Button Content="Serwer: marża 15%" Click="NormalPolicy" Margin="0,0,8,0"/>
+       <Button Content="Odrzuć bufor i pobierz aktualne dane…" Click="DiscardAndReload"/>
+      </WrapPanel>
+     </StackPanel>
+    </Expander>
+    <Expander Header="Wynik ostatniego zapisu i porównanie konfliktów" IsExpanded="True" Margin="0,0,0,8">
+     <TextBox Text="{Binding SaveReport,Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="125" VerticalScrollBarVisibility="Auto" BorderThickness="0"/>
+    </Expander>
+   </StackPanel>
+   <grid:PhialeGrid x:Name="PricesGrid" Columns="{Binding Columns}" Context="{Binding Grid}" ShowDiagnosticStatus="False"
+     IsGridReadOnly="False" IsPagingEnabled="True" DataPageSize="100" EnableDataVirtualization="False" ShowFilterRow="True" LanguageCode="pl" MultiSelect="True">
+    <grid:PhialeGrid.ChangePanelContent><grid:PhialeChangePanel/></grid:PhialeGrid.ChangePanelContent>
+    <grid:PhialeGrid.ValidationPanelContent><grid:PhialeValidationPanel/></grid:PhialeGrid.ValidationPanelContent>
+    <grid:PhialeGrid.CapabilityPolicy><config:PriceReviewPolicy/></grid:PhialeGrid.CapabilityPolicy>
+   </grid:PhialeGrid>
+  </DockPanel>
+ </Grid>
+</Window>

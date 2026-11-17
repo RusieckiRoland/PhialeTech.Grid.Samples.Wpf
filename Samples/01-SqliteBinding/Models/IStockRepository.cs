@@ -1,4 +1,4 @@
-namespace PhialeTech.Grid.Samples.Wpf.SqliteBinding.Models;
+﻿namespace PhialeTech.Grid.Samples.Wpf.SqliteBinding.Models;
 
 public interface IStockRepository
 {

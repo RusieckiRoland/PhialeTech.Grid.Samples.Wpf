@@ -1,4 +1,4 @@
-namespace PhialeTech.Grid.Samples.Wpf.SqliteBinding.Models;
+﻿namespace PhialeTech.Grid.Samples.Wpf.SqliteBinding.Models;
 
 /// <summary>One product balance in one warehouse. No SQL, UI or Grid dependencies.</summary>
 public sealed record StockRow(
