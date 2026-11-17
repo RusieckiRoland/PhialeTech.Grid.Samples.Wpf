@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using PhialeGrid.Contracts;
 using PhialeGrid.Core;
@@ -8,7 +8,7 @@ using PhialeTech.Grid.Samples.Wpf.SqliteBinding.Models;
 
 namespace PhialeTech.Grid.Samples.Wpf.DataVirtualization.ViewModels;
 
-/// <summary>Describes columns, loads model rows and publishes properties for XAML binding.</summary>
+/// <summary>Describes columns and exposes an on-demand data session for XAML binding.</summary>
 public sealed class StocksViewModel(
     Func<int, IReadOnlyList<IGridColumnDescriptor>, GridDataBinding> createBinding, IGridApi? runtime = null) : INotifyPropertyChanged, IDisposable
 {
@@ -65,7 +65,6 @@ public sealed class StocksViewModel(
         IsIdle = false; OnPropertyChanged(nameof(IsIdle)); _reloadCommand?.Refresh();
         var count = SelectedSize;
         Status = $"Loading {count:N0} rows…";
-        var timer = System.Diagnostics.Stopwatch.StartNew();
         try
         {
             await Task.CompletedTask; // Session configuration performs no database reads.

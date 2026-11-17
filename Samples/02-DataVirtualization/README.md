@@ -1,4 +1,4 @@
-﻿# 02 — Local data virtualization
+# 02 — Local data virtualization
 
 Same warehouse model, columns and read-only database as example 01, but no ReadAll.
 The Grid asks StockQuerySource.QueryAsync for Offset/Size; EF/SQLite selects only
@@ -10,7 +10,7 @@ so there is no duplicate SQL engine or HTTP server in this application.
 dotnet run --project Samples/02-DataVirtualization/DataVirtualization.csproj -c Release
 ```
 
-Choose the logical dataset scope (10,000 / 100,000 / 1,000,000), then Load snapshot
+Choose the logical dataset scope (10,000 / 100,000 / 1,000,000), then Open dataset
 to reconnect the source. This does not download the selected set. Scroll to fetch
 windows. Enable paging in Grid options to use the same QueryAsync via page buttons.
 Default: EnableDataVirtualization=True, IsPagingEnabled=False, DataPageSize=100.

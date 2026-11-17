@@ -1,9 +1,9 @@
-﻿using PhialeGrid.Core.Capabilities;
+using PhialeGrid.Core.Capabilities;
 using PhialeGrid.Core.Regions;
 
 namespace PhialeTech.Grid.Samples.Wpf.DataVirtualization.Configuration;
 
-/// <summary>Application configuration for an already loaded, read-only snapshot.</summary>
+/// <summary>Read-only local query example. The data source reads requested windows.</summary>
 public sealed class ReadOnlySnapshotPolicy : IGridCapabilityPolicy
 {
     public bool CanViewRegion(GridRegionKind regionKind) => regionKind is
