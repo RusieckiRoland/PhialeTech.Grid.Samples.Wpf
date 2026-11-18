@@ -2,6 +2,9 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using PhialeTech.PhialeGrid.Wpf.Surface;
+using PhialeTech.PhialeGrid.Wpf.Surface.Presenters;
 using System.Windows.Threading;
 using PhialeGrid.Core;
 using PhialeTech.Grid.Samples.Wpf.DataVirtualization.Composition;
@@ -28,7 +31,23 @@ internal static class Program
     Check(api.Data.Current!.MaterializedVirtualRows.Count<=300,"initial read does not materialize the complete dataset");
     var scroll=Children<ScrollViewer>(grid).OrderByDescending(s=>s.ScrollableHeight).First();
     Check(scroll.ScrollableHeight>10000,"scrollbar represents the complete logical result");
+    var surface=Children<GridSurfaceHost>(grid).Single();
+    var oldCode=Children<GridCellPresenter>(grid).First(cell=>cell.CellData?.ColumnKey=="ProductCode").CellData.DisplayText;
     scroll.ScrollToVerticalOffset(scroll.ScrollableHeight);
+    await Wait(()=>surface.IsLoadingPreview || api.Data.Current!.MaterializedVirtualRows.Any(pair=>pair.Key==9999));
+    if(surface.IsLoadingPreview)
+    {
+        Check(Children<GridCellPresenter>(grid).Any(cell=>cell.CellData?.DisplayText==oldCode),"actual SQLite scroll retains the previous visible values while loading");
+        var capture=Environment.GetEnvironmentVariable("PHIALE_DEMO_SCREENSHOTS");
+        if(!string.IsNullOrEmpty(capture))
+        {
+            Directory.CreateDirectory(capture);var content=(FrameworkElement)window.Content;var rect=new Rect(0,0,content.ActualWidth,content.ActualHeight);var drawing=new DrawingVisual();
+            using(var dc=drawing.RenderOpen()) {dc.DrawRectangle(window.Background,null,rect);dc.DrawRectangle(new VisualBrush(content),null,rect);}
+            var bitmap=new RenderTargetBitmap((int)Math.Ceiling(rect.Width),(int)Math.Ceiling(rect.Height),96,96,PixelFormats.Pbgra32);bitmap.Render(drawing);var png=new PngBitmapEncoder();png.Frames.Add(BitmapFrame.Create(bitmap));using var output=File.Create(Path.Combine(capture,"02-scroll-preview.png"));png.Save(output);
+        }
+    }
+    else Console.WriteLine("INFO SQLite completed before the intermediate frame; deterministic surface tests cover the animation interval.");
+
     await Wait(()=>api.Data.Current!.MaterializedVirtualRows.Any(pair=>pair.Key==9999)&&!api.Data.Current.IsBusy);
     Check(api.Data.Current!.MaterializedVirtualRows.Count<1000,"scroll to last record loads windows, not every intervening row");
     scroll.ScrollToVerticalOffset(0);

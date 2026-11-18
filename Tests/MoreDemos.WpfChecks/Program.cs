@@ -1,4 +1,4 @@
-﻿// Independent sample assemblies link model sources; aliases identify their distinct runtime types.
+// Independent sample assemblies link model sources; aliases identify their distinct runtime types.
 extern alias snapshot;
 extern alias priceserver;
 extern alias card;
@@ -253,33 +253,136 @@ internal static class Program
     }
     private static async Task Nested()
     {
-        var assets=nested::PhialeTech.Grid.Samples.Wpf.RowDetails.Infrastructure.AssetCatalog.Read();
-        using var source=new nested::PhialeTech.Grid.Samples.Wpf.NestedGrid.Composition.LocationGridComposition(assets);
+        // Tests use a private database, never the user's working copy.
+        var database=Path.Combine(Path.GetTempPath(),"Phiale-nested-"+Guid.NewGuid().ToString("N")+".sqlite");
+        var seed=Path.Combine(AppContext.BaseDirectory,"Data","local-editing.sqlite");
+        var original=SHA256.HashData(File.ReadAllBytes(seed)); File.Copy(seed,database);
+        var repository=new nested::PhialeTech.Grid.Samples.Wpf.NestedGrid.Infrastructure.LocationRepository(database);
+        using var source=new nested::PhialeTech.Grid.Samples.Wpf.NestedGrid.Composition.LocationGridComposition(repository);
         var api=GridApiFactory.CreateRuntime();
-        var model=new nested::PhialeTech.Grid.Samples.Wpf.NestedGrid.ViewModels.LocationsViewModel(GridApiFactory.CreateContext<LocationRow>(api,source.Binding));
-        var window=new nested::PhialeTech.Grid.Samples.Wpf.NestedGrid.Views.MainWindow(model) { Height=1100 };Show(window);
+        var model=new nested::PhialeTech.Grid.Samples.Wpf.NestedGrid.ViewModels.LocationsViewModel(
+            GridApiFactory.CreateContext<LocationRow>(api,source.Binding),database);
+        var window=new nested::PhialeTech.Grid.Samples.Wpf.NestedGrid.Views.MainWindow(model,source) { Height=1100 };Show(window);
         try {
             await Wait(()=>api.Data.Current?.HasConfirmedQuery==true);
-            Check(model.Grid.TotalCount==6,"07 shows six parent locations");
             var grid=(GridControl)window.FindName("LocationsGrid");
             var parents=api.Data.Current.VisibleRecords.Cast<LocationRow>().ToArray();
-            foreach(var parent in parents.Take(2))Check(grid.ExpandRowDetail(api.Projection.ResolveSurfaceRowKeys([parent.Id]).Single()),"07 opens a location's table");
-            await Task.Delay(500);await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            Check(grid.UseSharedDetailCommandBar,"08 starts with one shared command bar");
+            // First exercise the original separate-bar variant without changing the data tests.
+            grid.UseSharedDetailCommandBar=false;await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            Check(parents.Length==6,"08 shows six parent locations");
+            Check(model.Columns.Select(column=>column.Id).SequenceEqual(new[]{"Id","Contact","Phone","Notes"}),
+                "08 master has a stable key and three editable fields");
+            Check(!grid.IsGridReadOnly && model.Columns.Count(column=>column.IsEditable)==3,"08 master is genuinely editable");
+
+            var parent=parents[0]; var parentKey=api.Projection.ResolveSurfaceRowKeys([parent.Id]).Single();
+            api.Selection.SetCurrentCell(parentKey,"Contact");
+            Check(grid.BeginEditCurrentCell(),"08 native master editor opens");
+            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            var masterEditor=Children<PhialeTech.PhialeGrid.Wpf.Surface.Presenters.GridCellPresenter>(grid).Single(p=>p.CellData?.IsEditing==true);
+            Children<System.Windows.Controls.TextBox>(masterEditor).Single().Text="Anna — opiekun";
+            Check(grid.PostCurrentEdit(),"08 native master editor accepts text");
+            Check(model.Grid.HasPendingChanges && repository.ReadLocations().First().Contact!="Anna — opiekun",
+                "08 master edit stays buffered before Save");
+            await model.Grid.SaveAsync();
+            Check(repository.ReadLocations().First().Contact=="Anna — opiekun" && !model.Grid.HasPendingChanges,
+                "08 master Save persists the location");
+
+            foreach(var row in parents.Take(2))Check(grid.ExpandRowDetail(api.Projection.ResolveSurfaceRowKeys([row.Id]).Single()),"08 opens a location's table");
             await Wait(()=>Children<GridControl>(grid).Count()==2);
-            Capture(window,"07-nested-grid");
             var children=Children<GridControl>(grid).ToArray();
-            foreach(var child in children){
+            await Wait(()=>children.All(child=>child.Api.Data.Current?.HasConfirmedQuery==true));
+            foreach(var child in children) {
                 var records=child.Api.Projection.ProjectCurrent().Records.Cast<NestedAssetRow>().ToArray();
-                Check(records.Length==4 && records.Select(r=>r.Location).Distinct().Count()==1,"07 child grid contains only its parent's four assets");
-                Check(child.Columns.Any(c=>c.Id=="Name") && child.IsGridReadOnly,"07 uses the real full PhialeGrid control and declared columns");
+                Check(records.Length==4 && records.Select(row=>row.Location).Distinct().Count()==1,"08 child contains only its parent's four assets");
+                Check(!child.IsGridReadOnly && child.Columns.Count(column=>column.IsEditable)==3,"08 child has three editable fields");
+                Check(Children<System.Windows.Controls.Button>(child).Any(button=>System.Windows.Automation.AutomationProperties.GetAutomationId(button)=="grid.commit" && button.IsVisible),
+                    "08 child displays its own standard Save action");
             }
-            var first=children[0];var other=children[1];var otherCount=other.Api.Projection.ProjectCurrent().TotalCount;
+            var first=children.Single(child=>child.Api.Projection.ProjectCurrent().Records.Cast<NestedAssetRow>().First().Location==parent.Id);
+            var other=children.Single(child=>child!=first); var asset=first.Api.Projection.ProjectCurrent().Records.Cast<NestedAssetRow>().First();
+            var childKey=first.Api.Projection.ResolveSurfaceRowKeys([asset.Id]).Single();
+            var oldName=repository.Assets.ReadAll().Single(row=>row.Id==asset.Id).Name;
+            first.Api.Selection.SetCurrentCell(childKey,"Name");
+            Check(first.BeginEditCurrentCell(),"08 native detail editor opens");
+            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            var editor=Children<PhialeTech.PhialeGrid.Wpf.Surface.Presenters.GridCellPresenter>(first).Single(p=>p.CellData?.IsEditing==true);
+            Children<System.Windows.Controls.TextBox>(editor).Single().Text="Wyposażenie po przeglądzie";
+            Check(first.PostCurrentEdit(),"08 native detail editor accepts text");
+            Check(first.Api.Editing.HasPendingEdits && repository.Assets.ReadAll().Single(row=>row.Id==asset.Id).Name==oldName,
+                "08 detail edit stays buffered before Save");
+            Check(!model.Grid.HasPendingChanges && !other.Api.Editing.HasPendingEdits,"08 buffers are isolated from master and sibling");
+            window.Close();
+            Check(window.IsVisible,"08 closing with an unsaved child is blocked");
+            await model.Grid.SaveAsync();
+            Check(repository.Assets.ReadAll().Single(row=>row.Id==asset.Id).Name==oldName,"08 master Save does not commit a child buffer");
+            grid.Api.Details.Collapse(parentKey);await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            grid.ExpandRowDetail(parentKey);await Wait(()=>Children<GridControl>(grid).Count()==2);
+            first=Children<GridControl>(grid).Single(child=>child.Api.Projection.ProjectCurrent().Records.Cast<NestedAssetRow>().First().Location==parent.Id);
+            Check(first.Api.Editing.HasRecordChanges(asset.Id),"08 collapse/reopen retains the child buffer");
+            await first.CommitEditsAsync();
+            Check(repository.Assets.ReadAll().Single(row=>row.Id==asset.Id).Name=="Wyposażenie po przeglądzie" && !first.Api.Editing.HasPendingEdits,
+                "08 detail Save persists its own records");
+            Check(first.Api.Editing.TrySetFieldValue(asset.Id,"Quantity",17),"08 quantity is editable");
+            first.Api.Editing.CancelPendingChanges();
+            Check(repository.Assets.ReadAll().Single(row=>row.Id==asset.Id).Quantity==asset.Quantity,"08 detail Discard leaves the database unchanged");
+            first.Api.Editing.TrySetFieldValue(asset.Id,"Quantity",-1); await first.CommitEditsAsync();
+            Check(first.Api.Editing.HasPendingEdits && repository.Assets.ReadAll().Single(row=>row.Id==asset.Id).Quantity>=0,"08 persistence rejects invalid child quantity and retains the buffer");
+            first.Api.Editing.CancelPendingChanges();
+            Check(model.Grid.SetValue(parent.Id,"Phone","discard me"),"08 parent phone is editable");
+            model.Grid.DiscardChanges();
+            Check(repository.ReadLocations().First().Phone=="","08 master Discard leaves the database unchanged");
+            var otherCount=other.Api.Projection.ProjectCurrent().TotalCount;
             first.Api.Projection.Filters=new GridFilterGroup([new("Category",GridFilterOperator.Equals,"Elektronika")],GridLogicalOperator.And);
             first.Api.Projection.RefreshLocalSurface();await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
-            Check(first.Api.Projection.ProjectCurrent().TotalCount==1,"07 applies the child filter to its own records");
-            Check(other.Api.Projection.Filters.Filters.Count==0 && other.Api.Projection.ProjectCurrent().TotalCount==otherCount,"07 filtering one child does not filter its sibling");
-            Check(api.Data.Current.TotalCount==6 && !api.Editing.HasPendingEdits,"07 child operations do not edit the parent dataset");
-        } finally {window.Close();}
+            Check(other.Api.Projection.Filters.Filters.Count==0 && other.Api.Projection.ProjectCurrent().TotalCount==otherCount,
+                "08 child filters do not affect siblings");
+            Capture(window,"08-separate-master-detail");
+            var reopened=new nested::PhialeTech.Grid.Samples.Wpf.NestedGrid.Infrastructure.LocationRepository(database);
+            Check(reopened.ReadLocations().First().Contact=="Anna — opiekun" && reopened.Assets.ReadAll().Single(row=>row.Id==asset.Id).Name=="Wyposażenie po przeglądzie",
+                "08 saved master/detail values survive reopening the database");
+            Check(SHA256.HashData(File.ReadAllBytes(seed)).SequenceEqual(original),"08 shipped seed remains unchanged");
+            grid.UseSharedDetailCommandBar=true;await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            first=Children<GridControl>(grid).Single(child=>child.Api.Projection.ProjectCurrent().Records.Cast<NestedAssetRow>().Any(row=>row.Id==asset.Id));
+            Check(Children<GridControl>(grid).All(child=>!child.Api.Workspace.ResolveCurrent().Single(region=>region.RegionKind==PhialeGrid.Core.Regions.GridRegionKind.TopCommandRegion).IsAvailable),
+                "08 shared mode makes every child toolbar unavailable");
+            Check(Children<GridControl>(grid).All(child=>!((FrameworkElement)child.TopCommandContent).IsVisible),"08 shared mode really removes child bars from the native layout");
+            first.RaiseEvent(new System.Windows.Input.KeyboardFocusChangedEventArgs(System.Windows.Input.Keyboard.PrimaryDevice,0,grid,first)
+                {RoutedEvent=System.Windows.Input.Keyboard.GotKeyboardFocusEvent});
+            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            var bar=(PhialeTech.PhialeGrid.Wpf.Controls.PhialeGridCommandBar)grid.TopCommandContent;
+            Check(ReferenceEquals(bar.DataContext,first),"08 shared bar follows keyboard activation of a detail");
+            model.Grid.SetValue(parent.Id,"Phone","Pending master phone");
+            first.Api.Editing.TrySetFieldValue(asset.Id,"Name","Zapis przez wspólny pasek");
+            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            var sharedButton=Children<System.Windows.Controls.Button>(bar).First();
+            sharedButton.RaiseEvent(new System.Windows.Input.KeyboardFocusChangedEventArgs(System.Windows.Input.Keyboard.PrimaryDevice,0,first,sharedButton)
+                {RoutedEvent=System.Windows.Input.Keyboard.GotKeyboardFocusEvent});
+            Check(ReferenceEquals(bar.DataContext,first),"08 clicking/focusing shared bar preserves the detail target");
+            bar.CommitCommand.Execute(null);
+            await Wait(()=>!first.Api.Editing.IsCommitting && !first.Api.Editing.HasPendingEdits);
+            Check(repository.Assets.ReadAll().Single(row=>row.Id==asset.Id).Name=="Zapis przez wspólny pasek",
+                "08 shared Save persists the active detail to SQLite");
+            Check(model.Grid.HasPendingChanges && repository.ReadLocations().First().Phone=="",
+                "08 shared detail Save does not persist the master buffer");
+            grid.Api.Details.ActivateCommandBarTarget();await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            Check(ReferenceEquals(bar.DataContext,grid),"08 returning to master changes the shared target");
+            bar.CancelAllCommand.Execute(null);await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            Check(!model.Grid.HasPendingChanges,"08 shared Discard clears only the active master's buffer");
+            grid.UseSharedDetailCommandBar=false;await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            Check(first.Api.Workspace.ResolveCurrent().Single(region=>region.RegionKind==PhialeGrid.Core.Regions.GridRegionKind.TopCommandRegion).IsAvailable,
+                "08 turning off sharing restores the separate toolbar option");
+            grid.UseSharedDetailCommandBar=true;first.Api.Details.ActivateCommandBarTarget();
+            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            Check(Children<GridControl>(grid).All(child=>!((FrameworkElement)child.TopCommandContent).IsVisible),"08 repeated mode switch does not leave duplicate bars");
+            Capture(window,"08-shared-master-detail");
+        } finally {
+            foreach(var child in Children<GridControl>((GridControl)window.FindName("LocationsGrid")).ToArray()) {
+                child.CancelCurrentEdit(); child.Api.Editing.CancelPendingChanges();
+            }
+            model.Grid.DiscardChanges();window.Close();
+            Console.WriteLine("Nested check database: "+database);
+        }
     }
 }
 

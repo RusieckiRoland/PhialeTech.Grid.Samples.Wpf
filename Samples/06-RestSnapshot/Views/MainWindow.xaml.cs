@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using PhialeGrid.Contracts;
 using PhialeTech.Grid.Samples.Wpf.RestSnapshot.Composition;
 using PhialeTech.Grid.Samples.Wpf.RestSnapshot.ViewModels;
@@ -22,7 +22,7 @@ public partial class MainWindow : Window
     {
         var source = new SnapshotComposition(); var api = GridApiFactory.CreateRuntime();
         var other = new PriceReviewViewModel(api, source) { Address = _model.Address, Supplier = _model.Supplier, Category = _model.Category, ImportedFrom = _model.ImportedFrom, ImportedTo = _model.ImportedTo };
-        var window = new MainWindow(api, other) { Title = "05 · Drugi operator", Left = Left + 30, Top = Top + 30 };
+        var window = new MainWindow(api, other) { Title = "06 · Drugi operator", Left = Left + 30, Top = Top + 30 };
         window.Closed += (_, _) => source.Dispose(); window.Show(); await other.LoadAsync();
     }
     private async void DiscardAndReload(object sender, RoutedEventArgs e)

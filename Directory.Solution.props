@@ -1,6 +1,4 @@
 <Project>
-  <PropertyGroup>
-    <!-- Keep solution builds aligned with the published package used by the sample. -->
-    <PhialeDesignWpfVersion>0.1.0-preview.48</PhialeDesignWpfVersion>
-  </PropertyGroup>
+  <!-- Use the same versions as individual sample and test projects. -->
+  <Import Project="Directory.Build.props" />
 </Project>

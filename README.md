@@ -1,4 +1,4 @@
-﻿# PhialeTech.Grid.Samples.Wpf
+# PhialeTech.Grid.Samples.Wpf
 
 Eight focused WPF examples using Phiale.Grid NuGet packages and MVVM.
 The tutorial sequence separates full in-memory work from real on-demand reads.
@@ -16,9 +16,11 @@ dotnet run --project Samples/01-SqliteBinding/SqliteBinding.csproj -c Release
 
 Open PhialeTech.Grid.Samples.Wpf.sln in Visual Studio. Each numbered example is a
 separate application. No other Phiale source repository or private package feed
-is required. NuGet.Config contains only nuget.org. Grid packages are pinned to
+is required for a normal clone. NuGet.Config contains only nuget.org. By default, Grid packages use
 2.0.0-preview.11; Phiale.Design.Wpf is 0.1.0-preview.48 and UniversalInput.Contracts
 is 3.0.0-preview.3. Individual projects declare the additional SQLite/EF dependencies.
+A machine-local LocalPackages.props, when present, overrides Grid and Design
+for every sample, test and both build configurations; see Local binary candidates below.
 
 ## Choose an example
 
@@ -31,7 +33,7 @@ is 3.0.0-preview.3. Individual projects declare the additional SQLite/EF depende
 | [05 — Local editing](Samples/05-LocalEditing/README.md) | 24 varied assets, seven editors, pending changes, discard and atomic file save. | Complete local set, buffered edits, explicit save. |
 | [06 — REST snapshot](Samples/06-RestSnapshot/README.md) | Select supplier price batch, edit locally, save through REST with version conflicts and server validation. | Complete selected REST snapshot, local work, remote commit. |
 | [07 — Row details](Samples/07-RowDetails/README.md) | Application-owned UserControl inside an expanded row. | Read-only detail presentation. |
-| [08 — Nested Grid](Samples/08-NestedGrid/README.md) | Full child Grid with independent filtering and selection. | Read-only parent/child presentation. |
+| [08 — Nested Grid](Samples/08-NestedGrid/README.md) | Editable location master and asset detail; independent buffers and SQLite saves. | Complete local sets, separate buffered sessions. |
 
 UI virtualization prepares only the needed presentation area in every example.
 Data virtualization is separate: example 02 reads needed windows instead of first
@@ -88,3 +90,20 @@ https://phialetech.com/en/licensing/.
 The new local-virtualization example occupies 02. The former 02–07 are now 03–08;
 project names, namespaces and server ports remain stable. Earlier working README
 notes are preserved in docs/History and do not describe the current dependency set.
+
+## Local binary candidates
+
+All eight examples select their Grid and Design versions in Directory.Build.props.
+Normal clones use the published versions from NuGet.org. For local verification,
+an ignored LocalPackages.props can select unpublished versions and add the
+artifacts/local-feed directory to restore. Local candidates are optional and are never required by a fresh clone.
+The samples continue to use PackageReference, without references to private
+Grid or Design source projects. Removing the local override restores the normal
+published package selection.
+
+For an explicit public-package check, pass -p:UseLocalPhialePackages=false.
+The current release selects Grid 2.0.0-preview.12 and Design 0.1.0-preview.49.
+
+## Public release verification — 2026-11-19
+
+Grid preview.12 and Design preview.49 were restored exclusively from NuGet.org into a fresh cache. All eight samples build in Debug and Release with zero warnings/errors. Nine check runners passed, plus Immediate and close-save/close-cancel cases. Actual dependency outputs and six Phiale DLL hashes match the published protected Grid and unobfuscated Design packages in all sixteen outputs. The author requested these scenarios and publication; AI implemented and verified the changes. Evidence stays in ignored artifacts/release-public-preview12. Fresh Windows VM verification is a separate step.

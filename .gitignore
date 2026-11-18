@@ -7,3 +7,6 @@ artifacts/
 **/*-wal
 **/*-shm
 *.log
+
+# Machine-local, unpublished binary candidates; fresh clones use nuget.org.
+LocalPackages.props

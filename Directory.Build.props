@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <PhialeGridVersion Condition="'$(PhialeGridVersion)' == ''">2.0.0-preview.12</PhialeGridVersion>
+    <PhialeDesignWpfVersion Condition="'$(PhialeDesignWpfVersion)' == ''">0.1.0-preview.49</PhialeDesignWpfVersion>
+  </PropertyGroup>
+  <!-- Local binary candidates are opt-in and never required by a fresh clone. -->
+  <Import Project="LocalPackages.props" Condition="Exists('LocalPackages.props') And '$(UseLocalPhialePackages)' != 'false'" />
+</Project>

@@ -1,4 +1,4 @@
-﻿# 05 — Local SQLite editing
+# 05 — Local SQLite editing
 
 ## Read the three record-definition lines
 
@@ -152,3 +152,16 @@ Column and data builders use the pinned preview.11 packages from nuget.org.
 No private builder feed is required. The composition owns the session.
 
 2026-11-16 — MVVM: ViewModel udostępnia GridContext<T> jako Grid; XAML wiąże Context. CurrentRecordId i SelectedRecordIds można odczytać w ViewModelu. Paczki preview.10 zostały opublikowane na NuGet.org 2026-11-17. Kompozycja zachowuje własność sesji. Kontekst należy odłączyć przed zamknięciem widoku.
+
+## Dwa sposoby zapisu
+
+Przed edycją wybierz Zapis buforowany albo Zapis natychmiastowy. ViewModel ustawia
+Grid.SaveMode na GridSaveMode.Buffered/Immediate. Nie zmienia repozytorium ani
+portu zapisu. W pierwszym trybie Enter/Zastosuj zostawia zmiany do wspólnego
+Zapisz/Odrzuć. W drugim ta sama ścieżka zapisu jest uruchamiana po zatwierdzeniu
+edycji, a oba przyciski bufora są ukryte. Walidacja sprawdza cały rekord.
+Trybu nie przełączamy przy trwającej edycji/zapisie ani z niezapisanymi zmianami.
+Odrzucenie zapisu nie usuwa bufora i nie powoduje pętli ponowień; popraw rekord,
+cofnij jego zmianę albo jawnie ponów zapis z aplikacji. Nowy kandydat jest lokalny,
+nieopublikowany. HideUnavailableMenuItems=True w widoku pomija niedostępne pozycje
+menu Elementy. Ramki grup paska usunięto; przy braku miejsca zostają ikony z podpowiedziami.

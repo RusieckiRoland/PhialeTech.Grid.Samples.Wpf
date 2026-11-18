@@ -1,4 +1,4 @@
-﻿<Window x:Class="PhialeTech.Grid.Samples.Wpf.RowDetails.Views.MainWindow"
+<Window x:Class="PhialeTech.Grid.Samples.Wpf.RowDetails.Views.MainWindow"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
  xmlns:config="clr-namespace:PhialeTech.Grid.Samples.Wpf.HttpRest.Configuration"
  xmlns:grid="clr-namespace:PhialeTech.PhialeGrid.Wpf.Controls;assembly=PhialeTech.Grid.Wpf"
@@ -7,7 +7,7 @@
  Background="{DynamicResource Phiale.Design.Brush.Surface.Base.Light}">
  <DockPanel Margin="{DynamicResource Phiale.Design.Thickness.Form.Padding}">
   <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
-   <TextBlock Text="06 · Rozwiń szczegóły rekordu przyciskiem +" Style="{StaticResource Phiale.Design.Style.Text.Body}" />
+   <TextBlock Text="07 · Rozwiń szczegóły rekordu przyciskiem +" Style="{StaticResource Phiale.Design.Style.Text.Body}" />
    <TextBlock Text="Własny AssetDetailsView pojawia się wewnątrz tabeli, pod swoim rekordem. Możesz rozwinąć kilka kart; każda ma własny kontekst danych." TextWrapping="Wrap" />
   </StackPanel>
   <grid:PhialeGrid x:Name="AssetsGrid" Columns="{Binding Columns}" Context="{Binding Grid}" ShowDiagnosticStatus="False" IsGridReadOnly="True"

@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using PhialeTech.Grid.Samples.Wpf.RowDetails.ViewModels;
 namespace PhialeTech.Grid.Samples.Wpf.RowDetails.Views;
 public partial class MainWindow : Window
