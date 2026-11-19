@@ -1,9 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../Samples/03-HttpRest/Server/HttpRest.Server.csproj" />
-    <PackageReference Include="PhialeTech.Grid.Core" Version="2.0.0-preview.11" />
-    <PackageReference Include="PhialeTech.Grid.Data.Http" Version="2.0.0-preview.11" />
+    <PackageReference Include="PhialeTech.Grid.Core" Version="$(PhialeGridVersion)" />
+    <PackageReference Include="PhialeTech.Grid.Data.Http" Version="$(PhialeGridVersion)" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <Compile Include="../../Samples/03-HttpRest/Client/Infrastructure/StocksEndpoint.cs" Link="StocksEndpoint.cs" />
   </ItemGroup>
