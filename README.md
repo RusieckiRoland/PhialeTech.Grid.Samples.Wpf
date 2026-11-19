@@ -107,3 +107,5 @@ The current release selects Grid 2.0.0-preview.12 and Design 0.1.0-preview.49.
 ## Public release verification — 2026-11-19
 
 Grid preview.12 and Design preview.49 were restored exclusively from NuGet.org into a fresh cache. All eight samples build in Debug and Release with zero warnings/errors. Nine check runners passed, plus Immediate and close-save/close-cancel cases. Actual dependency outputs and six Phiale DLL hashes match the published protected Grid and unobfuscated Design packages in all sixteen outputs. The author requested these scenarios and publication; AI implemented and verified the changes. Evidence stays in ignored artifacts/release-public-preview12. Fresh Windows VM verification is a separate step.
+
+Windows VM verification: fresh public clone1bdb865a35df26a7c9806da90078ea28464417c4, new cache, all eight outputs resolved Grid12/Design49. All nine data and native WPF runners passed; the source database was unchanged. Reports are kept privately under the host VM test configuration. Guest sleep interrupted report transfer; the complete passing report was recovered and the collector transfer guard was corrected.
